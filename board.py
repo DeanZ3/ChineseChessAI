@@ -6,26 +6,30 @@
 # G = 帥/將 (General)
 # H = 傌/馬 (Horse)
 # S = 兵/卒 (Soldier)
-# Positions are encoded as a tuple (x,y), where x denotes the column and y denotes
-# the row. 
 
 import numpy as np
 import pygame
 import sys
+from pieces import Piece, avail_move
 
 # Initialize pygame
 pygame.init()
 
 # Constants
-
 ROWS, COLS = 10, 9
 SQUARE_SIZE = 80
 WIDTH, HEIGHT = COLS * SQUARE_SIZE,  ROWS  * SQUARE_SIZE
-
+PIECE_SIZE = SQUARE_SIZE // 2 - 5
+POSSIBLE_MOVE_SIZE = SQUARE_SIZE // 3
 LINE_COLOR = (0, 0, 0)
 BACKGROUND_COLOR = (255, 228, 181)  # light beige
 RIVER_TEXT_COLOR = (0, 0, 128)
 FONT_SIZE = 36
+
+# Game States
+SHOWING_POSSIBLE_MOVES = 0
+WAITING_FOR_MOVE = 1
+AI_MOVING = 2
 
 # Setup window
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -37,6 +41,9 @@ class Piece:
     self.name = name
     self.color = color
     self.position = position
+    self.selected_piece = None
+    self.selected_avail_moves = []
+    
 
 
 class Board:
@@ -51,6 +58,15 @@ class Board:
     self.init_piece()
     self.dead_pieces = []
     self.put_piece()
+    self.game_state = WAITING_FOR_MOVE
+    self.turn = "red"
+    self.winning = None
+
+  def _switch_turn(self):
+    if self.turn == "red":
+        self.turn = "black"
+    else:
+        self.turn = "red"
 
 
   def init_piece(self):
@@ -98,13 +114,13 @@ class Board:
       self.board[x][y] = piece
 
   def get_position(self,x,y):
-      # return the position on the pixel graph given a position on the chessboard
+      # DRAWING_METHOD: return the position on the pixel graph given a position on the chessboard
       # x denotes the row and y denotes the column, so we need to flip them
       assert 1 <= x <= ROWS and 1 <= y <= COLS
       return y * SQUARE_SIZE - SQUARE_SIZE / 2, x * SQUARE_SIZE - SQUARE_SIZE / 2
   
   def draw_board(self):
-      # draw the board
+      # draw the board, only need to be called once
       screen.fill(BACKGROUND_COLOR)
       # first, generate the border of the board
       top_left = self.get_position(1,1)
@@ -179,13 +195,13 @@ class Board:
           raise ValueError("Invalid piece name")
 
   def draw_piece(self, enable_Chin_chracter=True):
-      # draw the pieces on the board
+      # draw the pieces on the board, this need to be called every update
       for piece in self.pieces:
           x, y = piece.position
           color = (255,0,0) if piece.color == "red" else (0,0,0)
           font_color = (0,0,0) if piece.color == "red" else (255,0,0)
           position = self.get_position(x,y)
-          pygame.draw.circle(screen, color, position, SQUARE_SIZE / 2 - 5)
+          pygame.draw.circle(screen, color, position, PIECE_SIZE)
           if enable_Chin_chracter:
              name = self.get_Chin_chracter(piece)
           else:
@@ -194,20 +210,99 @@ class Board:
           text_rect = text.get_rect(center=(position[0], position[1]))
           screen.blit(text, text_rect)
 
+  def draw_turn(self):
+      # draw the turn of the player
+      text = font.render(f"{self.turn}'s turn", True, (0,0,0))
+      text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
+      screen.blit(text, text_rect)
+
+  def deal_with_click(self, x, y):
+     if self.game_state == AI_MOVING:
+          return
+     if self.game_state == WAITING_FOR_MOVE:
+        if self.cannot_move():
+            self.winning = "black" if self.turn == "red" else "red"
+        # first check which piece is clicked
+        for piece in self.pieces:
+            if piece.color != self.turn:
+                continue
+            x_piece, y_piece = piece.position
+            position = self.get_position(x_piece,y_piece)
+            if np.sqrt((position[0] - x) ** 2 + (position[1] - y) ** 2) < PIECE_SIZE:
+                self.selected_piece = piece
+                self.selected_avail_moves = avail_move(piece, self.board)
+                self.game_state = SHOWING_POSSIBLE_MOVES
+                return
+     elif self.game_state == SHOWING_POSSIBLE_MOVES:
+        # check if the click is on the possible moves
+        for moves in self.selected_avail_moves:
+            pos = self.get_position(moves[0][0], moves[0][1])
+            if np.sqrt((pos[0] - x) ** 2 + (pos[1] - y) ** 2) < POSSIBLE_MOVE_SIZE:
+                # move the piece to the new position
+                self.board[self.selected_piece.position[0]][self.selected_piece.position[1]] = None
+                self.selected_piece.position = moves[0]
+                self.board[moves[0][0]][moves[0][1]] = self.selected_piece
+                # check if any enemy piece is killed
+                if moves[1] is not None:
+                    self.dead_pieces.append(moves[1])
+                    self.pieces.remove(moves[1])
+                    # check if the game is over
+                    if moves[1].name == "G":
+                        self.winning = self.turn
+                # reset the selected piece and possible moves
+                self.selected_piece = None
+                self.selected_avail_moves = []
+                self._switch_turn()
+
+        self.game_state = WAITING_FOR_MOVE
+            
+  def cannot_move(self):
+      total_moves = []
+      for piece in self.pieces:
+          if piece.color == self.turn:
+              total_moves += avail_move(piece, self.board)
+      return len(total_moves) == 0
+      
+
+  def draw_possible_moves(self):
+      if self.game_state != SHOWING_POSSIBLE_MOVES:
+          return
+      # first highlight the selected piece
+      x, y = self.selected_piece.position
+      position = self.get_position(x,y)
+      pygame.draw.circle(screen, (255,255,255), position, PIECE_SIZE)
+      # draw the possible moves
+      for moves in self.selected_avail_moves:
+          pos = self.get_position(moves[0][0], moves[0][1])
+          pygame.draw.circle(screen, (0,255,0), pos, POSSIBLE_MOVE_SIZE)
+
+
+  def update(self):
+      # update the board
+      self.draw_board()
+      self.draw_piece()
+      self.draw_possible_moves()
+      self.draw_turn()
+      pygame.display.flip()
+
 
 def main():
     clock = pygame.time.Clock()
     board = Board()
-    board.draw_board()
-    board.draw_piece()
+    board.update()
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                board.deal_with_click(x, y)
 
-        
-        pygame.display.flip()
+        board.update()
+        if board.winning is not None:
+            print(f"{board.winning} wins!")
+            break
         clock.tick(60)
 
 if __name__ == "__main__":
