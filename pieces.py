@@ -19,7 +19,7 @@ class Piece:
 class Side:
   def __init__(self,color):
     self.color = color
-    self.pieces = init_pieces()
+    self.pieces = self.init_pieces()
   def init_pieces(self):
     if self.color == "red":
       return [
