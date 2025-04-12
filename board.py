@@ -10,6 +10,7 @@
 import numpy as np
 import pygame
 import sys
+import random
 from pieces import Piece, avail_move
 
 # Initialize pygame
@@ -61,6 +62,7 @@ class Board:
     self.game_state = WAITING_FOR_MOVE
     self.turn = "red"
     self.winning = None
+    self.bot = Bot("black")
 
   def _switch_turn(self):
     if self.turn == "red":
@@ -216,9 +218,40 @@ class Board:
       text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
       screen.blit(text, text_rect)
 
+  def AI_move(self):  
+      print("AI is moving")
+      if self.game_state != AI_MOVING:
+          return # AI is not moving
+      assert self.turn == self.bot.color
+      self.bot.update_board(self)
+      piece, move = self.bot.random_move()
+      if piece is not None and move is not None:
+            # move the piece to the new position
+            self.board[piece.position[0]][piece.position[1]] = None
+            piece.position = move[0]
+            self.board[move[0][0]][move[0][1]] = piece
+            # check if any enemy piece is killed
+            if move[1] is not None:
+                self.dead_pieces.append(move[1])
+                self.pieces.remove(move[1])
+                # check if the game is over
+                if move[1].name == "G":
+                    self.winning = self.turn
+            # reset the selected piece and possible moves
+            self.selected_piece = None
+            self.selected_avail_moves = []
+            self._switch_turn()  
+            self.game_state = WAITING_FOR_MOVE
+            self.update()
+            print("AI moved")
+      else:
+            print("AI cannot move")
+
   def deal_with_click(self, x, y):
      if self.game_state == AI_MOVING:
-          return
+          return # AI is moving
+
+             
      if self.game_state == WAITING_FOR_MOVE:
         if self.cannot_move():
             self.winning = "black" if self.turn == "red" else "red"
@@ -253,8 +286,10 @@ class Board:
                 self.selected_piece = None
                 self.selected_avail_moves = []
                 self._switch_turn()
-
-        self.game_state = WAITING_FOR_MOVE
+                self.game_state = AI_MOVING
+                self.AI_move()
+            else:
+                self.game_state = WAITING_FOR_MOVE
             
   def cannot_move(self):
       total_moves = []
@@ -267,7 +302,7 @@ class Board:
   def draw_possible_moves(self):
       if self.game_state != SHOWING_POSSIBLE_MOVES:
           return
-      # first highlight the selected piece
+      # first highlight the selected piece, draw a circle around it but not filled
       x, y = self.selected_piece.position
       position = self.get_position(x,y)
       pygame.draw.circle(screen, (255,255,255), position, PIECE_SIZE)
@@ -283,7 +318,33 @@ class Board:
       self.draw_piece()
       self.draw_possible_moves()
       self.draw_turn()
+
       pygame.display.flip()
+
+
+
+class Bot:
+  def __init__(self, color = "black"):
+    self.color = color
+  
+  def update_board(self,game):
+    self.board = game.board
+    self.pieces = [piece for piece in game.pieces if piece.color == self.color]
+
+  def random_move(self):
+    # Select a random piece and a random move
+    all_moves = []
+    for piece in self.pieces:
+        moves = avail_move(piece, self.board)
+        for move in moves:
+            all_moves.append((piece, move))
+    print(f"AI has {len(all_moves)} moves")
+    if len(all_moves) > 0:
+        (piece, move) = random.choice(all_moves)
+        print(f"AI selected {piece.name} at {piece.position} to move to {move[0]} and kill {move[1]}")
+        return piece, move
+    return None, None # no move available
+  
 
 
 def main():
@@ -298,8 +359,9 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
                 board.deal_with_click(x, y)
+                board.update()
+            board.update()
 
-        board.update()
         if board.winning is not None:
             print(f"{board.winning} wins!")
             break

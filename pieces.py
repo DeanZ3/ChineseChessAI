@@ -335,7 +335,8 @@ def avail_move_soldier(piece, board):
                       or board[pos[0]][pos[1]].color != piece.color]
     possible_moves = []
     for pos in all_directions:
-        assert verify(pos)
+        if not verify(pos):
+            continue
         if board[pos[0]][pos[1]] == None:
             possible_moves.append((pos, None))
         else:
