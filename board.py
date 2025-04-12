@@ -352,6 +352,15 @@ class Bot:
         return piece, move
     return None, None # no move available
   
+  # After implementing a new clever_move function, remember to change "move" function to update the behavior
+  # piece is an object defined in pieces.py
+  # move is a tuple of (new_position, killed_piece), for instance ((1,2), Piece("R","red",(1,2)))
+  # the update_board function is already called in the main function, so you don't need to call it again
+  # so the new clever_move functions should have access to self.pieces and self.board
+  # self.board is a 2D array of pieces, where None denotes an empty position, and occupied positions with a Piece object,
+  # see the Board class for more info
+  # self.pieces is a list of pieces that are alive and belongs to the bot
+  
    
   
 
