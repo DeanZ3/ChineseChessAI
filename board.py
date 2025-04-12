@@ -224,7 +224,7 @@ class Board:
           return # AI is not moving
       assert self.turn == self.bot.color
       self.bot.update_board(self)
-      piece, move = self.bot.random_move()
+      piece, move = self.bot.move()
       if piece is not None and move is not None:
             # move the piece to the new position
             self.board[piece.position[0]][piece.position[1]] = None
@@ -268,6 +268,9 @@ class Board:
                 return
      elif self.game_state == SHOWING_POSSIBLE_MOVES:
         # check if the click is on the possible moves
+        if self.selected_avail_moves == []:
+            self.game_state = WAITING_FOR_MOVE
+            return
         for moves in self.selected_avail_moves:
             pos = self.get_position(moves[0][0], moves[0][1])
             if np.sqrt((pos[0] - x) ** 2 + (pos[1] - y) ** 2) < POSSIBLE_MOVE_SIZE:
@@ -331,6 +334,10 @@ class Bot:
     self.board = game.board
     self.pieces = [piece for piece in game.pieces if piece.color == self.color]
 
+  def move(self):
+      return self.random_move()
+
+
   def random_move(self):
     # Select a random piece and a random move
     all_moves = []
@@ -344,6 +351,8 @@ class Bot:
         print(f"AI selected {piece.name} at {piece.position} to move to {move[0]} and kill {move[1]}")
         return piece, move
     return None, None # no move available
+  
+   
   
 
 
