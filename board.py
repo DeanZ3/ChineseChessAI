@@ -329,13 +329,23 @@ class Board:
 class Bot:
   def __init__(self, color = "black"):
     self.color = color
+    self.piece_value = {
+        "S": 1,    # Soldier before crossing the river
+        "A": 2,    # Advisor
+        "E": 2,    # Elephant
+        "H": 4,    # Horse (Knight)
+        "C": 4.5,  # Cannon
+        "R": 9,    # Chariot (Rook)
+        "G": 100   # General (still set high to prioritize survival)
+    }
   
   def update_board(self,game):
     self.board = game.board
     self.pieces = [piece for piece in game.pieces if piece.color == self.color]
 
   def move(self):
-      return self.random_move()
+      # return self.random_move()
+      return self.greedy_move()
 
 
   def random_move(self):
@@ -351,6 +361,27 @@ class Bot:
         print(f"AI selected {piece.name} at {piece.position} to move to {move[0]} and kill {move[1]}")
         return piece, move
     return None, None # no move available
+
+  def greedy_move(self):
+        best_score = -float("inf")
+        best_move = None
+        for piece in self.pieces:
+            moves = avail_move(piece, self.board)
+            for move in moves:
+                captured_piece = move[1]
+                score = self.piece_value.get(captured_piece.name, 0) if captured_piece else 0
+                if score > best_score:
+                    best_score = score
+                    best_move = (piece, move)
+
+        if best_move:
+            piece, move = best_move
+            print(f"[Greedy AI] Moving {piece.name} at {piece.position} to {move[0]} with score {best_score}")
+            return piece, move
+
+        # fallback if no "best" move
+        print("[Greedy AI] No good move, falling back to random")
+        return self.random_move()
   
   # After implementing a new clever_move function, remember to change "move" function to update the behavior
   # piece is an object defined in pieces.py
