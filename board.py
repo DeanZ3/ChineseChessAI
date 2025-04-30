@@ -253,6 +253,7 @@ class PlayerAIBoard:
                 # check if the game is over
                 if move[1].name == "G":
                     self.winning = self.turn
+                    return
             # reset the selected piece and possible moves
             self.selected_piece = None
             self.selected_avail_moves = []
@@ -301,6 +302,7 @@ class PlayerAIBoard:
                     # check if the game is over
                     if moves[1].name == "G":
                         self.winning = self.turn
+                        return
                 # reset the selected piece and possible moves
                 self.selected_piece = None
                 self.selected_avail_moves = []
@@ -546,6 +548,7 @@ class AIAIBoard:
                 # check if the game is over
                 if move[1].name == "G":
                     self.winning = self.turn
+                    return
             # reset the selected piece and possible moves
             self.selected_piece = None
             self.selected_avail_moves = []
