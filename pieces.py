@@ -15,6 +15,9 @@ class Piece:
     self.name = name
     self.color = color
     self.position = position
+  
+  def duplicate(piece):
+    return Piece(piece.name, piece.color, piece.position)
 
 def verify(pos):
     return pos[0] in range(1,11) and pos[1] in range(1,10)
@@ -331,12 +334,10 @@ def avail_move_soldier(piece, board):
                               (piece.position[0], piece.position[1]+1), \
                               (piece.position[0], piece.position[1]-1)]
     # filter out cases when the position is occupied by the same color
-    all_directions = [pos for pos in all_directions if board[pos[0]][pos[1]] == None \
-                      or board[pos[0]][pos[1]].color != piece.color]
+    all_directions = [pos for pos in all_directions if verify(pos) and (board[pos[0]][pos[1]] == None \
+                      or board[pos[0]][pos[1]].color != piece.color)]
     possible_moves = []
     for pos in all_directions:
-        if not verify(pos):
-            continue
         if board[pos[0]][pos[1]] == None:
             possible_moves.append((pos, None))
         else:
