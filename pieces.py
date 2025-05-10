@@ -11,10 +11,17 @@
 
 
 class Piece:
-  def __init__(self,name,color,position):
-    self.name = name
-    self.color = color
-    self.position = position
+    def __init__(self,name,color,position):
+        self.name = name
+        self.color = color
+        self.position = position
+
+    def __eq__(self,other):
+        if not isinstance(other, Piece):
+            return False
+        return self.name == other.name and self.color == other.color and self.position == other.position
+    def __repr__(self):
+        return f"Piece({self.name}, {self.color},{self.position})"
 
 def verify(pos):
     return pos[0] in range(1,11) and pos[1] in range(1,10)
@@ -331,8 +338,8 @@ def avail_move_soldier(piece, board):
                               (piece.position[0], piece.position[1]+1), \
                               (piece.position[0], piece.position[1]-1)]
     # filter out cases when the position is occupied by the same color
-    all_directions = [pos for pos in all_directions if board[pos[0]][pos[1]] == None \
-                      or board[pos[0]][pos[1]].color != piece.color]
+    all_directions = [pos for pos in all_directions if pos[0] >= 1 and pos[0] <= 10 and pos[1] >=1 and pos[1]<10 and (board[pos[0]][pos[1]] == None \
+                      or board[pos[0]][pos[1]].color != piece.color)]
     possible_moves = []
     for pos in all_directions:
         if not verify(pos):
