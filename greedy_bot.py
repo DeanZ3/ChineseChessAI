@@ -39,7 +39,7 @@ class Greedy1:
     return None, None # no move available
 
   def greedy_move(self):
-        best_score = -float("inf")
+        best_score = 0
         best_move = None
         for piece in self.pieces:
             moves = avail_move(piece, self.board)
@@ -138,7 +138,7 @@ class _Greedy2_pos:
 
     def greedy_move(self, steps = 5):
           if steps == 1:
-            best_score = -float("inf")
+            best_score = 0
             best_move = None
             for piece in self.pieces:
                 moves = avail_move(piece, self.board)
@@ -157,7 +157,7 @@ class _Greedy2_pos:
             return self.random_move()
           
           if steps == 2:
-            best_score = -float("inf")
+            best_score = 0
             best_move = None
             for piece in self.pieces:
                 moves = avail_move(piece, self.board)
@@ -180,7 +180,7 @@ class _Greedy2_pos:
             return self.random_move()
           
           else:
-            best_score = -float("inf")
+            best_score = 0
             best_move = None
             for piece in self.pieces:
                 moves = avail_move(piece, self.board)
