@@ -79,6 +79,7 @@ class PlayerAIBoard:
     self.turn = "red"
     self.winning = None
     self.bot = Naive("black")
+    print(f"[INFO] PlayerAIBoard using AI: {type(self.bot).__name__}")
 
   def _switch_turn(self):
     if self.turn == "red":
@@ -366,6 +367,8 @@ class AIAIBoard:
     self.bot_r = Greedy2("red", steps = 4)
     #################################################################################
     #################################################################################
+    print(f"[INFO] Red AI:   {type(self.bot_r).__name__}")
+    print(f"[INFO] Black AI: {type(self.bot_b).__name__}")
     self.turn = "red"   
 
   def _switch_turn(self):
