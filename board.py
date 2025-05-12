@@ -78,7 +78,7 @@ class PlayerAIBoard:
     self.game_state = WAITING_FOR_MOVE
     self.turn = "red"
     self.winning = None
-    self.bot = Greedy2("black", steps = 4)
+    self.bot = Greedy2("black", steps = 3)
 
   def _switch_turn(self):
     if self.turn == "red":
@@ -362,8 +362,8 @@ class AIAIBoard:
     #################################################################################
     #################################################################################
     # change these two lines for the bots to be tested
-    self.bot_b = Greedy2("black", steps = 2)
-    self.bot_r = Greedy2("red", steps = 3)
+    self.bot_b = Greedy2("black", steps = 3)
+    self.bot_r = Greedy2("red", steps = 4)
     #################################################################################
     #################################################################################
     self.turn = "red"   
