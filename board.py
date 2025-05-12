@@ -78,7 +78,7 @@ class PlayerAIBoard:
     self.game_state = WAITING_FOR_MOVE
     self.turn = "red"
     self.winning = None
-    self.bot = Greedy2("black", steps = 3)
+    self.bot = Naive("black")
 
   def _switch_turn(self):
     if self.turn == "red":

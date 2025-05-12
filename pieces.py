@@ -96,7 +96,7 @@ def avail_move_general(piece, board):
             if target != None and target.name == "G" and target.color == "black":
                 all_directions.append((i,piece.position[1]))
                 break
-            else:
+            elif target != None:
                 break
     else:
         for i in range(piece.position[0]+1,11):
@@ -104,7 +104,7 @@ def avail_move_general(piece, board):
             if target != None and target.name == "G" and target.color == "red":
                 all_directions.append((i,piece.position[1]))
                 break
-            else:
+            elif target != None:
                 break
     possible_moves = []
     for pos in all_directions:
