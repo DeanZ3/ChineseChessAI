@@ -14,6 +14,7 @@ import random
 from pieces import *
 from naive_bot import *
 from greedy_bot import *
+from minimax_bot import *
 
 # get input from command line whether this is for AI vs AI mode
 # flag --AIAI would be used to denote AI vs AI mode, default is human vs AI
