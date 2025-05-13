@@ -15,6 +15,7 @@ from pieces import *
 from naive_bot import *
 from greedy_bot import *
 from minimax_bot import *
+from cnn_bot import *
 
 # get input from command line whether this is for AI vs AI mode
 # flag --AIAI would be used to denote AI vs AI mode, default is human vs AI
@@ -366,6 +367,8 @@ class AIAIBoard:
     # change these two lines for the bots to be tested
     self.bot_b = Greedy2("black", steps = 3)
     self.bot_r = Greedy2("red", steps = 4)
+    # CNN None means the default model
+    # self.bot_r = CNNBot("red", None)
     #################################################################################
     #################################################################################
     print(f"[INFO] Red AI:   {type(self.bot_r).__name__}")
