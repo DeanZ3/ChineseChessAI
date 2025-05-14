@@ -73,10 +73,8 @@ def avail_move_advisor(piece, board):
     return possible_moves
 
 def avail_move_general(piece, board):
-    if piece.color ==  "red":
-        all_possible_pos = [(x,y) for x in range(8,11) for y in range(4,7)]
-    else:
-        all_possible_pos = [(x,y) for x in range(1,4) for y in range(4,7)]
+    all_possible_pos = [(x,y) for x in range(8,11) for y in range(4,7)]+ \
+        [(x,y) for x in range(1,4) for y in range(4,7)]
     assert piece.position in all_possible_pos
     all_directions =  [(piece.position[0]+1, piece.position[1]), \
                 (piece.position[0]-1, piece.position[1]), \

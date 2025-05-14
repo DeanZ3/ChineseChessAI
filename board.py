@@ -80,7 +80,7 @@ class PlayerAIBoard:
     self.game_state = WAITING_FOR_MOVE
     self.turn = "red"
     self.winning = None
-    self.bot = Naive("black")
+    self.bot = Greedy2("black", steps = 3)
     print(f"[INFO] PlayerAIBoard using AI: {type(self.bot).__name__}")
 
   def _switch_turn(self):
@@ -365,8 +365,8 @@ class AIAIBoard:
     #################################################################################
     #################################################################################
     # change these two lines for the bots to be tested
-    self.bot_b = Greedy2("black", steps = 3)
-    self.bot_r = Greedy2("red", steps = 4)
+    self.bot_b = Minimax("black", depth = 2, alpha_beta = True)
+    self.bot_r = Greedy2("red", steps = 3)
     # CNN None means the default model
     # self.bot_r = CNNBot("red", None)
     #################################################################################
