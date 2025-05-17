@@ -14,6 +14,8 @@ import random
 from pieces import *
 from naive_bot import *
 from greedy_bot import *
+from board_mcts import *
+from pieces_mcts import *
 from minimax_bot import *
 from cnn_bot import *
 
